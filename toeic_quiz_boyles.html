@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TOEIC Part5 問題</title>
+<style>
+  body {
+    font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 0 20px;
+    color: #222;
+    background: #fafafa;
+    overflow-x: hidden;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #set-select {
+    font-size: 14px;
+    padding: 6px 10px;
+    min-height: 36px;
+  }
+  .random-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.2s;
+    border-radius: 26px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #3d7cf2;
+  }
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+  .mark-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .accent-select {
+    font-size: 15px;
+    margin-bottom: 1rem;
+  }
+  .accent-buttons {
+    display: inline-flex;
+    gap: 8px;
+    vertical-align: middle;
+  }
+  .accent-btn {
+    padding: 10px 18px;
+    font-size: 18px;
+    font-weight: 600;
+    min-height: 44px;
+  }
+  .accent-btn.active {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+  }
+  .question-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 1.5rem;
+  }
+  .question-box p {
+    font-size: 17px;
+    margin: 0 0 14px;
+  }
+  .blank {
+    color: #b5541e;
+    font-weight: 600;
+  }
+  .choice-list p {
+    font-size: 16px;
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+  button {
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 12px 16px;
+    font-size: 16px;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  button:hover {
+    background: #f0f0f0;
+  }
+  .speak-btn {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+  #choice-letters {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  #choice-letters button {
+    font-size: 20px;
+    font-weight: 600;
+    color: #666;
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+  #result-view {
+    display: none;
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  #result-view.correct {
+    background: #e6f4ea;
+    border: 1px solid #a8d5b5;
+  }
+  #result-view.incorrect {
+    background: #fbe9e7;
+    border: 1px solid #e6a8a0;
+  }
+  #mark {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+  #mark.correct { color: #1e7b34; }
+  #mark.incorrect { color: #b3261e; }
+  .correct-sentence {
+    font-size: 17px;
+    margin: 0 0 8px;
+  }
+  .time-text {
+    font-size: 15px;
+    color: #777;
+    margin: 0 0 8px;
+  }
+  .translation-text {
+    font-size: 16px;
+    color: #444;
+    margin: 0 0 8px;
+  }
+  .explanation {
+    font-size: 16px;
+    color: #555;
+    margin: 0;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>TOEIC Part5 問題</h1>
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <select id="set-select" onchange="changeSet(this.value)">
+      <option value="set1">セット1 (101-130)</option>
+      <option value="set2">セット2 (101-130)</option>
+      <option value="set3">セット3 (101-130)</option>
+      <option value="wadapoe">わだぽえクイズ (1-20)</option>
+      <option value="ybm2_1">YBM2-1 (1-20)</option>
+      <option value="ybm2_2">YBM2-2 (21-40)</option>
+      <option value="ybm2_3">YBM2-3 (41-60)</option>
+      <option value="ybm2_4">YBM2-4 (61-80)</option>
+      <option value="ybm2_5">YBM2-5 (81-100)</option>
+      <option value="x_1">X-1 (1-20)</option>
+      <option value="x_2">X-2 (21-40)</option>
+      <option value="x_3">X-3 (41-60)</option>
+      <option value="x_4">X-4 (61-80)</option>
+      <option value="x_5">X-5 (81-100)</option>
+      <option value="x_6">X-6 (101-113)</option>
+    </select>
+    <label class="random-toggle">
+      ランダム出題
+      <span class="switch">
+        <input type="checkbox" id="random-toggle" onchange="randomMode = this.checked;">
+        <span class="slider"></span>
+      </span>
+    </label>
+  </div>
+</div>
+
+<div id="load-status" style="padding:1.5rem; text-align:center; color:#666; font-size:15px;">問題データを読み込んでいます…</div>
+
+<div id="question-view" style="display:none;">
+  <div class="question-box">
+    <p id="q-number"></p>
+    <p id="q-text"></p>
+    <div class="choice-list" id="choice-list"></div>
+  </div>
+
+  <div id="choice-letters"></div>
+</div>
+
+<div id="result-view">
+  <div class="mark-row">
+    <p id="mark"></p>
+    <button id="next-btn" onclick="nextQuestion()">次の問題 →</button>
+  </div>
+  <div class="accent-select">
+    読み上げの発音:
+    <span class="accent-buttons">
+      <button class="accent-btn" id="btn-US" onclick="speak('en-US','btn-US')" title="アメリカ英語">ア</button>
+      <button class="accent-btn" id="btn-GB" onclick="speak('en-GB','btn-GB')" title="イギリス英語">イ</button>
+      <button class="accent-btn" id="btn-AU" onclick="speak('en-AU','btn-AU')" title="オーストラリア英語">オ</button>
+    </span>
+  </div>
+  <p class="correct-sentence">正しい文: <strong id="correct-sentence-text"></strong></p>
+  <p class="time-text" id="time-text"></p>
+  <p class="translation-text" id="translation-text"></p>
+  <p class="explanation" id="explanation-text"></p>
+</div>
+
+<script>
+
+let questionSets = {};
+let currentSet = 'set1';
+let currentIndex = -1;
+let lastIndex = null;
+let questionShownAt = null;
+let randomMode = false;
+
+const DATA_URL = 'questions.json';
+
+async function loadQuestions() {
+  const statusEl = document.getElementById('load-status');
+  try {
+    const response = await fetch(DATA_URL, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error('HTTPステータス ' + response.status);
+    }
+    questionSets = await response.json();
+
+    statusEl.style.display = 'none';
+    document.getElementById('question-view').style.display = 'block';
+    renderQuestion();
+  } catch (err) {
+    statusEl.innerHTML =
+      '問題データの読み込みに失敗しました。<br>' +
+      '「' + DATA_URL + '」をこのHTMLファイルと同じフォルダに置き、Webサーバー経由(file:// では読み込めません)で開いているか確認してください。<br>' +
+      '<span style="font-size:13px; color:#999;">(' + err.message + ')</span>';
+  }
+}
+
+function questions() {
+  return questionSets[currentSet];
+}
+
+function pickNextIndex() {
+  if (!randomMode) {
+    return (currentIndex + 1) % questions().length;
+  }
+  if (questions().length === 1) return 0;
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * questions().length);
+  } while (idx === lastIndex);
+  return idx;
+}
+
+function changeSet(setKey) {
+  currentSet = setKey;
+  currentIndex = -1;
+  lastIndex = null;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  currentIndex = pickNextIndex();
+  lastIndex = currentIndex;
+  const q = questions()[currentIndex];
+
+  document.getElementById('q-number').textContent = q.number;
+  document.getElementById('q-text').textContent = q.sentence;
+
+  const choiceListDiv = document.getElementById('choice-list');
+  choiceListDiv.innerHTML = '';
+  q.choices.forEach(c => {
+    const p = document.createElement('p');
+    p.textContent = '(' + c.label + ') ' + c.text;
+    choiceListDiv.appendChild(p);
+  });
+
+  const lettersDiv = document.getElementById('choice-letters');
+  lettersDiv.innerHTML = '';
+  q.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = c.label;
+    btn.onclick = () => check(c.label);
+    lettersDiv.appendChild(btn);
+  });
+
+  document.getElementById('question-view').style.display = 'block';
+  document.getElementById('result-view').style.display = 'none';
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.accent-btn').forEach(b => b.classList.remove('active'));
+
+  questionShownAt = Date.now();
+}
+
+function nextQuestion() {
+  renderQuestion();
+}
+
+function speak(lang, btnId) {
+  document.querySelectorAll('.accent-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(btnId).classList.add('active');
+
+  const q = questions()[currentIndex];
+  const u = new SpeechSynthesisUtterance(q.correctSentence);
+  u.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function check(letter) {
+  const q = questions()[currentIndex];
+  const correct = letter === q.correctLabel;
+  const resultView = document.getElementById('result-view');
+  const mark = document.getElementById('mark');
+
+  document.getElementById('question-view').style.display = 'none';
+  resultView.style.display = 'block';
+  resultView.className = correct ? 'correct' : 'incorrect';
+  mark.className = correct ? 'correct' : 'incorrect';
+  mark.textContent = correct ? '〇' : '✕';
+
+
+  const elapsedSeconds = ((Date.now() - questionShownAt) / 1000).toFixed(1);
+
+  document.getElementById('correct-sentence-text').textContent = q.correctSentence;
+  document.getElementById('time-text').textContent = '解答時間: ' + elapsedSeconds + '秒';
+  document.getElementById('translation-text').textContent = '日本語訳: ' + q.translation;
+  document.getElementById('explanation-text').textContent = '解説: ' + q.explanation;
+}
+
+loadQuestions();
+
+</body>
+</html>
