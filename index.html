@@ -358,7 +358,7 @@ function speak(lang, btnId) {
 
   // 長い文を句切れで分割して、自然なイントネーションで読み上げ
   const phrases = q.correctSentence
-    .split(/(?<=[,;:])\s+|(?<=[.])\s+/)
+    .split(/(?<=[,;])\s+|(?<=[.!?])\s+(?=[A-Z])/)
     .filter(p => p.trim().length > 0);
 
   let delay = 0;
