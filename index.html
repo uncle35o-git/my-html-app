@@ -356,10 +356,19 @@ function speak(lang, btnId) {
   const q = questions()[currentIndex];
   window.speechSynthesis.cancel();
 
-  // 長い文を句切れで分割して、自然なイントネーションで読み上げ
+  // 長い文を句切れで分割して、自然なイントネーションで読み上げ（敬称は除外）
   const phrases = q.correctSentence
     .split(/(?<=[,;])\s+|(?<=[.!?])\s+(?=[A-Z])/)
-    .filter(p => p.trim().length > 0);
+    .filter(p => p.trim().length > 0)
+    // 敬称（Mr., Ms., Mrs., Dr.など）で分割されたものを再結合
+    .reduce((acc, phrase) => {
+      if (acc.length > 0 && /^[A-Z][a-z]/.test(phrase) && /(?:Mr|Ms|Mrs|Dr|Jr|Sr)\.$/.test(acc[acc.length - 1])) {
+        acc[acc.length - 1] += ' ' + phrase;
+      } else {
+        acc.push(phrase);
+      }
+      return acc;
+    }, []);
 
   let delay = 0;
   phrases.forEach((phrase) => {
