@@ -354,10 +354,27 @@ function speak(lang, btnId) {
   document.getElementById(btnId).classList.add('active');
 
   const q = questions()[currentIndex];
-  const u = new SpeechSynthesisUtterance(q.correctSentence);
-  u.lang = lang;
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(u);
+
+  // 長い文を句切れで分割して、自然なイントネーションで読み上げ
+  const phrases = q.correctSentence
+    .split(/(?<=[,;:])\s+|(?<=[.])\s+/)
+    .filter(p => p.trim().length > 0);
+
+  let delay = 0;
+  phrases.forEach((phrase) => {
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(phrase);
+      u.lang = lang;
+      u.rate = 0.9;
+      u.pitch = 1.1;
+      u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    }, delay);
+
+    // 前のフレーズの再生時間 + 短い休止時間
+    delay += (phrase.length * 50) + 300;
+  });
 }
 
 function check(letter) {
